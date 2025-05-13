@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Movie List | MovieSphere</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.159.0/three.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="bg-black text-white relative min-h-screen overflow-x-hidden">
+  <!-- Three.js Canvas (Background) -->
+  <div id="bg-canvas" class="fixed top-0 left-0 w-full h-full z-0"></div>
+
+  <!-- Header -->
+  <header class="bg-black bg-opacity-70 backdrop-blur-md py-4 px-6 shadow-lg sticky top-0 z-20">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <div class="h-10 w-10 rounded-full bg-purple-600 flex items-center justify-center">
+          <i class="fas fa-bolt text-xl"></i>
+        </div>
+        <span class="font-bold text-2xl bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">MovieSphere</span>
+      </div>
+      <nav class="hidden md:flex space-x-8">
+        <a href="{% url 'dashboard' %}" class="text-gray-300 hover:text-white transition">Dashboard</a>
+        <a href="{% url 'movie_list' %}" class="text-white font-semibold transition">Movies</a>
+        <!-- <a href="#" class="text-gray-300 hover:text-white transition">Analytics</a>
+        <a href="#" class="text-gray-300 hover:text-white transition">Settings</a> -->
+      </nav>
+      <div class="flex items-center space-x-4">
+        <div class="hidden md:flex items-center mr-4">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mr-2 overflow-hidden">
+            <i class="fas fa-user text-xs"></i>
+          </div>
+          <span class="text-sm font-medium text-gray-200">Admin</span>
+        </div>
+        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fas fa-bell"></i></a>
+        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fas fa-sign-out-alt"></i></a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="relative z-10 pt-6 pb-16">
+    <div class="max-w-7xl mx-auto px-4">
+      <!-- Page Header -->
+      <div class="mb-10">
+        <div class="bg-gradient-to-r from-purple-900/40 to-pink-900/40 backdrop-blur-lg rounded-2xl p-8 border border-purple-800/30 shadow-lg">
+          <div class="flex flex-col md:flex-row md:items-center justify-between">
+            <div>
+              <h1 class="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+                Movie Library
+              </h1>
+              <p class="text-gray-300 mt-2">
+                Browse and manage your complete movie collection
+              </p>
+            </div>
+            <div class="mt-6 md:mt-0">
+              <a href="{% url 'add_movie' %}" class="bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white font-medium py-2 px-6 rounded-lg transition transform hover:scale-105 shadow-lg flex items-center justify-center">
+                <i class="fas fa-plus mr-2"></i> Add New Movie
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Movie List Section -->
+      <div class="bg-gray-900/60 backdrop-blur-md rounded-xl border border-gray-800 shadow-xl overflow-hidden">
+        <!-- Search and Filter Bar -->
+        <div class="p-6 border-b border-gray-800 flex flex-col sm:flex-row justify-between items-center">
+          <h2 class="text-xl font-bold text-white mb-4 sm:mb-0">All Movies</h2>
+          <div class="relative w-full sm:w-64">
+            <input type="text" placeholder="Search movies..." class="w-full bg-gray-800/70 border border-gray-700 rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-600 transition">
+            <div class="absolute left-3 top-2.5 text-gray-400">
+              <i class="fas fa-search"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Movie List -->
+        <div class="overflow-hidden">
+          <ul class="divide-y divide-gray-800">
+            {% for movie in movies %}
+            <li class="group">
+              <div class="p-5 flex justify-between items-center hover:bg-gray-800/30 transition-all duration-200">
+                <div class="flex items-center flex-grow">
+                  <div class="h-12 w-12 bg-gray-800 rounded-lg flex items-center justify-center mr-4 overflow-hidden">
+                    <i class="fas fa-film text-purple-400"></i>
+                  </div>
+                  <div class="flex-grow">
+                    <a href="{% url 'movie_detail' movie.id %}" class="text-lg font-medium text-white hover:text-purple-400 transition">{{ movie.name }}</a>
+                    <div class="flex flex-wrap items-center mt-1">
+                      <span class="text-xs text-gray-400">
+                        <i class="fas fa-calendar-alt mr-1"></i> {% if movie.year %}{{ movie.year }}{% else %}N/A{% endif %}
+                      </span>
+                      <span class="text-gray-600 mx-2">•</span>
+                      <span class="text-xs text-gray-400">
+                        <i class="fas fa-clock mr-1"></i> {% if movie.duration %}{{ movie.duration }}{% else %}N/A{% endif %}
+                      </span>
+                      <span class="text-gray-600 mx-2">•</span>
+                      <span class="text-xs text-gray-400">
+                        <i class="fas fa-star mr-1"></i> {% if movie.rating %}{{ movie.rating }}{% else %}N/A{% endif %}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <a href="{% url 'movie_detail' movie.id %}" class="p-2 text-gray-400 hover:text-white transition">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                  <a href="{% url 'update_movie' movie.id %}" class="p-2 text-gray-400 hover:text-white transition">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <form action="{% url 'delete_movie' movie.id %}" method="post" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" onclick="return confirm('Are you sure you want to delete this movie?')" class="p-2 text-gray-400 hover:text-red-500 transition">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </li>
+            {% empty %}
+            <li class="py-16">
+              <div class="text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-800 mb-4">
+                  <i class="fas fa-film text-2xl text-gray-500"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-400">No movies found</h3>
+                <p class="text-gray-500 max-w-sm mx-auto mt-2">Your movie collection is empty. Add your first movie to get started.</p>
+                <div class="mt-6">
+                  <a href="{% url 'add_movie' %}" class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition">
+                    <i class="fas fa-plus mr-2"></i> Add Your First Movie
+                  </a>
+                </div>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!-- Pagination -->
+        <div class="p-6 border-t border-gray-800 flex justify-between items-center">
+          <div class="text-sm text-gray-400">
+            Showing <span class="font-medium text-white">{{ movies|length }}</span> movies
+          </div>
+          <div class="flex space-x-1">
+            <button class="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-800 text-gray-400 hover:bg-purple-600 hover:text-white transition disabled:opacity-50 disabled:pointer-events-none" disabled>
+              <i class="fas fa-chevron-left text-xs"></i>
+            </button>
+            <button class="w-10 h-10 flex items-center justify-center rounded-lg bg-purple-600 text-white transition">1</button>
+            <button class="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-800 text-gray-400 hover:bg-purple-600 hover:text-white transition">2</button>
+            <button class="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-800 text-gray-400 hover:bg-purple-600 hover:text-white transition">3</button>
+            <button class="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-800 text-gray-400 hover:bg-purple-600 hover:text-white transition">
+              <i class="fas fa-chevron-right text-xs"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-black bg-opacity-70 backdrop-blur-md py-6 px-6 relative z-10">
+    <div class="max-w-7xl mx-auto">
+      <div class="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center">
+        <p class="text-gray-500 text-sm">&copy; 2025 MovieSphere. All rights reserved.</p>
+        <div class="flex space-x-6 mt-4 md:mt-0">
+          <a href="#" class="text-gray-500 hover:text-gray-400 text-sm">Privacy</a>
+          <a href="#" class="text-gray-500 hover:text-gray-400 text-sm">Terms</a>
+          <a href="#" class="text-gray-500 hover:text-gray-400 text-sm">Support</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // GSAP animations
+    const tl = gsap.timeline();
+    
+    tl.from("header", {
+      duration: 0.8,
+      y: -50,
+      opacity: 0,
+      ease: "power3.out"
+    });
+    
+    tl.from("main > div > div", {
+      duration: 0.6,
+      y: 30,
+      opacity: 0,
+      stagger: 0.15,
+      ease: "power3.out"
+    }, "-=0.4");
+    
+    tl.from("li", {
+      duration: 0.4,
+      y: 20,
+      opacity: 0,
+      stagger: 0.05,
+      ease: "power3.out"
+    }, "-=0.2");
+    
+    tl.from("footer", {
+      duration: 0.8,
+      y: 30,
+      opacity: 0,
+      ease: "power3.out"
+    }, "-=0.6");
+
+    // Three.js Background
+    let scene, camera, renderer;
+    let particles, particleCount = 2000;
+    let mouseX = 0, mouseY = 0;
+    let windowHalfX = window.innerWidth / 2;
+    let windowHalfY = window.innerHeight / 2;
+    
+    function init() {
+      // Scene setup
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
+      camera.position.z = 1000;
+      
+      // Create particles
+      const geometry = new THREE.BufferGeometry();
+      const positions = new Float32Array(particleCount * 3);
+      const colors = new Float32Array(particleCount * 3);
+      
+      const colorPalette = [
+        new THREE.Color(0x8b5cf6), // Purple
+        new THREE.Color(0xec4899), // Pink
+        new THREE.Color(0x3b82f6), // Blue
+        new THREE.Color(0x8b5cf6), // Purple again for higher frequency
+      ];
+      
+      for (let i = 0; i < particleCount; i++) {
+        // Position
+        const x = (Math.random() - 0.5) * 2000;
+        const y = (Math.random() - 0.5) * 2000;
+        const z = (Math.random() - 0.5) * 2000;
+        
+        positions[i * 3] = x;
+        positions[i * 3 + 1] = y;
+        positions[i * 3 + 2] = z;
+        
+        // Color
+        const colorIndex = Math.floor(Math.random() * colorPalette.length);
+        const color = colorPalette[colorIndex];
+        
+        colors[i * 3] = color.r;
+        colors[i * 3 + 1] = color.g;
+        colors[i * 3 + 2] = color.b;
+      }
+      
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      
+      const material = new THREE.PointsMaterial({
+        size: 3,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.7,
+        sizeAttenuation: true
+      });
+      
+      particles = new THREE.Points(geometry, material);
+      scene.add(particles);
+      
+      // Renderer
+      renderer = new THREE.WebGLRenderer({ alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setClearColor(0x000000, 0);
+      document.getElementById('bg-canvas').appendChild(renderer.domElement);
+      
+      // Event listeners
+      document.addEventListener('mousemove', onDocumentMouseMove);
+      window.addEventListener('resize', onWindowResize);
+    }
+    
+    function onDocumentMouseMove(event) {
+      mouseX = (event.clientX - windowHalfX) * 0.05;
+      mouseY = (event.clientY - windowHalfY) * 0.05;
+    }
+    
+    function onWindowResize() {
+      windowHalfX = window.innerWidth / 2;
+      windowHalfY = window.innerHeight / 2;
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+    
+    function animate() {
+      requestAnimationFrame(animate);
+      
+      // Rotate particles
+      particles.rotation.x += 0.0003;
+      particles.rotation.y += 0.0005;
+      
+      // React to mouse
+      particles.rotation.x += (mouseY * 0.0002 - particles.rotation.x) * 0.01;
+      particles.rotation.y += (mouseX * 0.0002 - particles.rotation.y) * 0.01;
+      
+      renderer.render(scene, camera);
+    }
+    
+    // Start Three.js
+    init();
+    animate();
+  </script>
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ movie.name }}</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --accent: #6200ee;
+            --accent-light: #7c4dff;
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            opacity: 0;
+        }
+        
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        .movie-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        @media (min-width: 768px) {
+            .movie-card {
+                flex-direction: row;
+            }
+        }
+        
+        .movie-poster {
+            width: 100%;
+            max-height: 400px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        @media (min-width: 768px) {
+            .movie-poster {
+                width: 40%;
+                max-height: none;
+            }
+        }
+        
+        .movie-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+            transition: var(--transition);
+        }
+        
+        .movie-poster img:hover {
+            transform: scale(1.05);
+        }
+        
+        .movie-details {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        
+        .movie-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--text-primary), var(--accent-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .original-title {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-style: italic;
+            opacity: 0;
+        }
+        
+        .movie-release {
+            display: inline-block;
+            background-color: var(--accent);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            opacity: 0;
+        }
+        
+        .description-heading {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            opacity: 0;
+        }
+        
+        .movie-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            opacity: 0;
+        }
+        
+        .actions {
+            margin-top: auto;
+            display: flex;
+            gap: 1rem;
+            opacity: 0;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--accent-light);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(98, 0, 238, 0.3);
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--text-secondary);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--text-primary);
+            transform: translateY(-3px);
+        }
+        
+        .btn svg {
+            margin-right: 0.5rem;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            transition: var(--transition);
+            opacity: 0;
+        }
+        
+        .back-link:hover {
+            color: var(--text-primary);
+        }
+        
+        .back-link svg {
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{% url 'movie_list' %}" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"></path>
+            </svg>
+            Back to Movies
+        </a>
+        
+        <div class="movie-card">
+            <div class="movie-poster">
+                {% if movie.image_url %}
+                    <img src="{{ movie.image_url }}" alt="{{ movie.name }}">
+                {% else %}
+                    <img src="/api/placeholder/400/600" alt="Movie Poster">
+                {% endif %}
+            </div>
+            
+            <div class="movie-details">
+                <h1 class="movie-title">{{ movie.name }}</h1>
+                
+                {% if movie.original_title %}
+                    <p class="original-title">{{ movie.original_title }}</p>
+                {% endif %}
+                
+                <span class="movie-release">Released: {{ movie.release_date }}</span>
+                
+                <h3 class="description-heading">Synopsis</h3>
+                <p class="movie-description">{{ movie.description }}</p>
+                
+                <div class="actions">
+                    <a href="{% url 'update_movie' movie.id %}" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                        </svg>
+                        Edit Movie
+                    </a>
+                    <a href="#" class="btn btn-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"></path>
+                            <polyline points="16 5 21 5 21 10"></polyline>
+                            <line x1="14" y1="12" x2="21" y2="5"></line>
+                        </svg>
+                        Watch Trailer
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initial page load animation
+            gsap.to('body', {
+                opacity: 1,
+                duration: 0.8,
+                ease: 'power2.out'
+            });
+            
+            // Movie card animation
+            gsap.to('.movie-card', {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                delay: 0.2,
+                ease: 'power2.out'
+            });
+            
+            // Back link animation
+            gsap.to('.back-link', {
+                opacity: 1,
+                duration: 0.5,
+                delay: 0.3,
+                ease: 'power2.out'
+            });
+            
+            // Staggered content animations
+            const elements = [
+                '.movie-title',
+                '.original-title',
+                '.movie-release',
+                '.description-heading',
+                '.movie-description',
+                '.actions'
+            ];
+            
+            gsap.to(elements, {
+                opacity: 1,
+                y: 0,
+                duration: 0.6,
+                stagger: 0.1,
+                delay: 0.5,
+                ease: 'power2.out'
+            });
+        });
+    </script>
+</body>
+</html>

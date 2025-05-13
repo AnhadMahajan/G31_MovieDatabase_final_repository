@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MovieSphere - Your Ultimate Movie Database{% endblock %}</title>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&display=swap">
+
+    <!-- GSAP Animation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+
+    <!-- jQuery for AJAX -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+    <!-- Three.js for immersive backgrounds -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        /* Global Styles */
+        :root {
+            --primary: #8A2BE2;
+            --primary-dark: #6A1CB7;
+            --secondary: #FF4081;
+            --background-dark: #121212;
+            --background-light: #1E1E1E;
+            --background-card: #252525;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --error: #F44336;
+            --border-radius: 12px;
+            --shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.25s ease;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Background particle effects */
+        #particle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.2;
+        }
+
+        /* Header & Navigation */
+        header {
+            background-color: var(--background-light);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 2rem;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .logo-text {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-left: 10px;
+        }
+
+        .logo-icon {
+            color: var(--primary);
+            font-size: 2rem;
+            filter: drop-shadow(0 0 5px rgba(138, 43, 226, 0.3));
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        nav a:hover {
+            color: var(--text-primary);
+        }
+
+        nav a:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 3px;
+            bottom: 0;
+            left: 0;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+            border-radius: 5px;
+        }
+
+        nav a:hover:after {
+            width: 100%;
+        }
+
+        .user-controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.5rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 10px rgba(138, 43, 226, 0.2);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Mobile menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+
+        /* Main container */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .container {
+            margin: 2rem auto;
+            border-radius: var(--border-radius);
+            background-color: var(--background-light);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transform-origin: center;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        /* Form styling */
+        .form-container {
+            padding: 2.5rem;
+            max-width: 600px;
+            margin: 2rem auto;
+            background-color: var(--background-card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+        }
+
+        .form-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .form-header h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .form-header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border-radius: var(--border-radius);
+            background-color: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-primary);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.2);
+            background-color: rgba(255,255,255,0.08);
+        }
+
+        .form-icon {
+            position: absolute;
+            top: 3.1rem;
+            left: 1rem;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper::after {
+            content: "\f107";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            color: var(--primary);
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        select.form-control {
+            appearance: none;
+            padding-right: 2.5rem;
+            cursor: pointer;
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+            margin-top: 2rem;
+            padding: 1rem;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary.btn-block {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.3);
+        }
+
+        .form-footer {
+            margin-top: 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .form-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Card styles */
+        .card {
+            background-color: var(--background-card);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        }
+
+        .card-image {
+            position: relative;
+            overflow: hidden;
+            height: 250px;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .card:hover .card-image img {
+            transform: scale(1.1);
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .card-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            color: #FFC107;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Animation classes */
+        .fade-in {
+            animation: fadeIn 1s ease forwards;
+        }
+
+        .slide-up {
+            animation: slideUp 0.8s ease forwards;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Loading animation */
+        .loader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader-content {
+            text-align: center;
+        }
+
+        .loader-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255,255,255,0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--background-light);
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 3px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.05);
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-icon:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-5px);
+        }
+
+        .copyright {
+            margin-top: 3rem;
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Dark mode toggle */
+        .theme-toggle {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(30deg) scale(1.1);
+        }
+
+        /* Toast notifications */
+        .toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 9999;
+        }
+
+        .toast {
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            background-color: var(--background-card);
+            color: var(--text-primary);
+            box-shadow: var(--shadow);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            animation: slideInRight 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
+            max-width: 350px;
+        }
+
+        .toast-success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast-error {
+            border-left: 4px solid var(--error);
+        }
+
+        .toast-warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        .toast-icon {
+            font-size: 1.5rem;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        /* Search bar */
+        .search-container {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border-radius: 30px;
+            background-color: var(--background-card);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-primary);
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 5px rgba(138, 43, 226, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .header-container {
+                padding: 0 1rem;
+            }
+
+            nav ul {
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            nav ul {
+                position: fixed;
+                flex-direction: column;
+                background-color: var(--background-light);
+                width: 80%;
+                height: 100vh;
+                top: 0;
+                left: -100%;
+                padding: 6rem 2rem 2rem;
+                transition: left 0.3s ease;
+                box-shadow: var(--shadow);
+                z-index: 999;
+            }
+
+            nav ul.show {
+                left: 0;
+            }
+
+            .user-controls {
+                display: none;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .logo-text {
+                font-size: 1.5rem;
+            }
+
+            .form-container {
+                padding: 1.2rem;
+            }
+
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        </style>
+        {% block extra_css %}{% endblock %}
+       
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Particle background -->
+    <div id="particle-container"></div>
+
+    <!-- Loading spinner -->
+    <div class="loader" id="pageLoader">
+        <div class="loader-content">
+            <div class="loader-spinner"></div>
+            <h2 class="mt-3">Loading MovieSphere...</h2>
+        </div>
+    </div>
+
+    <!-- Toast notifications container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Header & Navigation -->
+    <header>
+        <div class="header-container">
+            <a href="/" class="logo">
+                <i class="fas fa-film logo-icon"></i>
+                <span class="logo-text">MovieSphere</span>
+            </a>
+
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <nav>
+                <ul id="navMenu">
+                    <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="/movies"><i class="fas fa-video"></i> Movies</a></li>
+                    <!-- <li><a href="/tv-shows"><i class="fas fa-tv"></i> TV Shows</a></li>
+                    <li><a href="/genres"><i class="fas fa-list"></i> Genres</a></li> -->
+                    <li><a href="/about"><i class="fas fa-info-circle"></i> About</a></li>
+                </ul>
+            </nav>
+
+            <div class="user-controls">
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search movies, TV shows...">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                <div class="auth-buttons">
+                    <a href="/login" class="btn btn-outline"><i class="fas fa-sign-in-alt"></i> Login</a>
+                    <a href="/register" class="btn btn-primary"><i class="fas fa-user-plus"></i> Register</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main content area -->
+    <main>
+        {% block content %}
+        <div class="container">
+            <h1>Welcome to MovieSphere</h1>
+            <p>This is a placeholder. Content will be added in extended templates.</p>
+        </div>
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>MovieSphere</h3>
+                <p>Your ultimate movie database for discovering films, TV shows, and more. Join our community of movie enthusiasts.</p>
+                <div class="footer-social">
+                    <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="/"><i class="fas fa-chevron-right"></i> Home</a></li>
+                    <li><a href="/movies"><i class="fas fa-chevron-right"></i> Movies</a></li>
+                    <li><a href="/tv-shows"><i class="fas fa-chevron-right"></i> TV Shows</a></li>
+                    <li><a href="/genres"><i class="fas fa-chevron-right"></i> Genres</a></li>
+                    <li><a href="/about"><i class="fas fa-chevron-right"></i> About Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Categories</h3>
+                <ul class="footer-links">
+                    <li><a href="/genre/action"><i class="fas fa-bolt"></i> Action</a></li>
+                    <li><a href="/genre/comedy"><i class="fas fa-laugh"></i> Comedy</a></li>
+                    <li><a href="/genre/drama"><i class="fas fa-theater-masks"></i> Drama</a></li>
+                    <li><a href="/genre/sci-fi"><i class="fas fa-rocket"></i> Sci-Fi</a></li>
+                    <li><a href="/genre/horror"><i class="fas fa-ghost"></i> Horror</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <ul class="footer-links">
+                    <li><a href="mailto:info@moviesphere.com"><i class="fas fa-envelope"></i> info@moviesphere.com</a></li>
+                    <li><a href="tel:+1234567890"><i class="fas fa-phone"></i> +1 (234) 567-890</a></li>
+                    <li><a href="#"><i class="fas fa-map-marker-alt"></i> Hollywood Blvd, Los Angeles, CA</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; {% now "Y" %} MovieSphere. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Theme toggle button -->
+    <div class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize page with loading animation
+            const pageLoader = document.getElementById('pageLoader');
+            pageLoader.style.display = 'flex';
+            
+            // Hide loader after small delay
+            setTimeout(() => {
+                pageLoader.style.opacity = 0;
+                setTimeout(() => {
+                    pageLoader.style.display = 'none';
+                }, 500);
+            }, 1500);
+
+            // Mobile navigation toggle
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const navMenu = document.getElementById('navMenu');
+            
+            mobileMenuBtn.addEventListener('click', function() {
+                this.classList.toggle('active');
+                navMenu.classList.toggle('show');
+                
+                if (this.classList.contains('active')) {
+                    this.innerHTML = '<i class="fas fa-times"></i>';
+                } else {
+                    this.innerHTML = '<i class="fas fa-bars"></i>';
+                }
+            });
+
+            // Initialize GSAP animations
+            gsap.registerPlugin(ScrollTrigger);
+            
+            // Animate elements when they come into view
+            gsap.utils.toArray('.container, .card, .form-container').forEach(element => {
+                gsap.from(element, {
+                    y: 50,
+                    opacity: 0,
+                    duration: 0.8,
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: element,
+                        start: "top 80%",
+                        toggleActions: "play none none none"
+                    }
+                });
+            });
+
+            // Animate navigation items
+            gsap.from('nav li', {
+                opacity: 0,
+                y: -20,
+                stagger: 0.1,
+                duration: 0.5,
+                ease: "power2.out",
+                delay: 0.5
+            });
+
+            // Logo animation
+            gsap.from('.logo', {
+                opacity: 0,
+                x: -30,
+                duration: 0.8,
+                ease: "elastic.out(1, 0.5)"
+            });
+
+            // Three.js background particles
+            function initParticles() {
+                const particleContainer = document.getElementById('particle-container');
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                
+                const renderer = new THREE.WebGLRenderer({ alpha: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                particleContainer.appendChild(renderer.domElement);
+
+                // Create particle geometry
+                const particles = new THREE.BufferGeometry();
+                const particleCount = 1000;
+                
+                const positions = new Float32Array(particleCount * 3);
+                const colors = new Float32Array(particleCount * 3);
+                
+                const color = new THREE.Color();
+                
+                for (let i = 0; i < particleCount * 3; i += 3) {
+                    // Position
+                    positions[i] = (Math.random() - 0.5) * 2000;
+                    positions[i + 1] = (Math.random() - 0.5) * 2000;
+                    positions[i + 2] = (Math.random() - 0.5) * 2000;
+                    
+                    // Color - purple gradient
+                    const shade = Math.random() * 0.5 + 0.5;
+                    color.setHSL(0.75, 0.8, shade);
+                    
+                    colors[i] = color.r;
+                    colors[i + 1] = color.g;
+                    colors[i + 2] = color.b;
+                }
+                
+                particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                
+                // Material
+                const particleMaterial = new THREE.PointsMaterial({
+                    size: 4,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 0.7
+                });
+                
+                // Points
+                const particleSystem = new THREE.Points(particles, particleMaterial);
+                scene.add(particleSystem);
+                
+                camera.position.z = 500;
+                
+                // Animation
+                function animate() {
+                    requestAnimationFrame(animate);
+                    
+                    particleSystem.rotation.x += 0.0003;
+                    particleSystem.rotation.y += 0.0005;
+                    
+                    renderer.render(scene, camera);
+                }
+                
+                animate();
+                
+                // Handle window resize
+                window.addEventListener('resize', function() {
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+            }
+            
+            // Initialize background particles
+            initParticles();
+
+            // Toast notification function
+            function showToast(message, type = 'success') {
+                const toastContainer = document.getElementById('toastContainer');
+                
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                
+                let icon = '';
+                if (type === 'success') icon = '<i class="fas fa-check-circle toast-icon" style="color: var(--success)"></i>';
+                else if (type === 'error') icon = '<i class="fas fa-exclamation-circle toast-icon" style="color: var(--error)"></i>';
+                else if (type === 'warning') icon = '<i class="fas fa-exclamation-triangle toast-icon" style="color: var(--warning)"></i>';
+                
+                toast.innerHTML = `
+                    ${icon}
+                    <div class="toast-content">${message}</div>
+                    <button class="toast-close"><i class="fas fa-times"></i></button>
+                `;
+                
+                toastContainer.appendChild(toast);
+                
+                // Remove toast after animation completes
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+                
+                // Close toast on click
+                toast.querySelector('.toast-close').addEventListener('click', () => {
+                    toast.remove();
+                });
+            }
+
+            // Example toast (can be removed in production)
+            setTimeout(() => {
+                showToast('Welcome to MovieSphere! Enjoy exploring our huge collection of movies.');
+            }, 2000);
+
+            // Form animation and validation
+            const formElements = document.querySelectorAll('.form-control');
+            
+            formElements.forEach(element => {
+                // Focus animation
+                element.addEventListener('focus', function() {
+                    gsap.to(this, {
+                        scale: 1.02,
+                        duration: 0.3,
+                        ease: "power1.out"
+                    });
+                });
+                
+                element.addEventListener('blur', function() {
+                    gsap.to(this, {
+                        scale: 1,
+                        duration: 0.3,
+                        ease: "power1.out"
+                    });
+                    
+                    // Simple validation
+                    if (this.hasAttribute('required') && !this.value) {
+                        gsap.fromTo(this, 
+                            {x: -5},
+                            {x: 0, duration: 0.3, ease: "elastic.out(1, 0.3)", clearProps: "x"}
+                        );
+                        this.style.borderColor = 'var(--error)';
+                    } else {
+                        this.style.borderColor = '';
+                    }
+                });
+            });
+
+            // Form submission with AJAX
+            const forms = document.querySelectorAll('form:not([data-no-ajax])');
+            
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    // You can remove this prevention in production when backend is ready
+                    e.preventDefault();
+                    
+                    // Show loading animation
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalBtnText = submitBtn.innerHTML;
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                    
+                    // Simulate AJAX request
+                    setTimeout(() => {
+                        // Restore button
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                        
+                        // Show success message
+                        showToast('Form submitted successfully!', 'success');
+                        
+                        // Optional: Reset form
+                        // form.reset();
+                        
+                        // Redirect (uncomment when backend is ready)
+                        // window.location.href = '/success-page';
+                    }, 1500);
+                    
+                    // Real AJAX implementation (uncomment when backend is ready)
+                    /*
+                    const formData = new FormData(this);
+                    
+                    fetch(this.action, {
+                        method: this.method,
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                        
+                        if (data.success) {
+                            showToast(data.message || 'Form submitted successfully!', 'success');
+                            // Optional: form.reset();
+                            // Optional: window.location.href = data.redirect_url;
+                        } else {
+                            showToast(data.message || 'Something went wrong!', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                        showToast('There was an error processing your request.', 'error');
+                        console.error('Error:', error);
+                    });
+                    */
+                });
+            });
+
+            // Search input animation
+            const searchInput = document.querySelector('.search-input');
+            
+            if (searchInput) {
+                searchInput.addEventListener('focus', function() {
+                    gsap.to(this, {
+                        width: '120%',
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
+                });
+                
+                searchInput.addEventListener('blur', function() {
+                    gsap.to(this, {
+                        width: '100%',
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
+                });
+            }
+
+            // Dynamic movie cards hover effect
+            const movieCards = document.querySelectorAll('.card');
+            
+            movieCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    gsap.to(this.querySelector('.card-image img'), {
+                        scale: 1.1,
+                        duration: 0.5,
+                        ease: "power2.out"
+                    });
+                    
+                    gsap.to(this, {
+                        y: -10,
+                        boxShadow: '0 20px 30px rgba(0,0,0,0.4)',
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    gsap.to(this.querySelector('.card-image img'), {
+                        scale: 1,
+                        duration: 0.5,
+                        ease: "power2.out"
+                    });
+                    
+                    gsap.to(this, {
+                        y: 0,
+                        boxShadow: '0 8px 20px rgba(0,0,0,0.3)',
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
+                });
+            });
+
+            // Typewriter effect for headlines
+            function typewriterEffect(element, speed = 50) {
+                const text = element.innerHTML;
+                element.innerHTML = '';
+                
+                let i = 0;
+                function type() {
+                    if (i < text.length) {
+                        element.innerHTML += text.charAt(i);
+                        i++;
+                        setTimeout(type, speed);
+                    }
+                }
+                
+                type();
+            }
+            
+            // Apply to elements with class 'typewriter'
+            document.querySelectorAll('.typewriter').forEach(element => {
+                typewriterEffect(element);
+            });
+        });
+    </script>
+
+    <!-- Custom JavaScript specific to extended templates -->
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
