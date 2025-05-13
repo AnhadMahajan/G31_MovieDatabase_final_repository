@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>Reviews for Movie ID {{ movie_id }}</h2>
+<ul>
+  {% for review in reviews %}
+    <li>
+      <strong>Rating:</strong> {{ review.rating }}<br>
+      <em>{{ review.comment }}</em>
+    </li>
+  {% empty %}
+    <li>No reviews yet.</li>
+  {% endfor %}
+</ul>
+
+</body>
+</html>

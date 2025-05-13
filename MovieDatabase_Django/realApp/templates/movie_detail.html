@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Detail</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+        :root {
+            --primary-bg: #0e1117;
+            --secondary-bg: #1a1d24;
+            --card-bg: #252a34;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --accent-color: #6366f1; 
+            --accent-gradient: linear-gradient(135deg, #6366f1, #8b5cf6, #d946ef);
+            --border-radius: 12px;
+            --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            position: relative;
+            min-height: 100vh;
+        }
+        
+        .glow-effect {
+            position: absolute;
+            top: -200px;
+            right: -200px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, rgba(99, 102, 241, 0) 70%);
+            border-radius: 50%;
+            z-index: 1;
+            filter: blur(50px);
+        }
+        
+        .glow-effect-2 {
+            position: absolute;
+            bottom: -200px;
+            left: -200px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(217, 70, 239, 0.15) 0%, rgba(217, 70, 239, 0) 70%);
+            border-radius: 50%;
+            z-index: 1;
+            filter: blur(50px);
+        }
+        
+        .movie-detail-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 80px 24px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .movie-hero {
+            position: relative;
+            margin-bottom: 50px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .movie-backdrop {
+            width: 100%;
+            height: 420px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .movie-backdrop::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(14, 17, 23, 0.3), var(--primary-bg));
+            z-index: 2;
+        }
+        
+        .movie-backdrop img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scale(1.05);
+            transition: transform 0.5s ease;
+        }
+        
+        .movie-info {
+            position: relative;
+            margin-top: -120px;
+            z-index: 3;
+            display: flex;
+            padding: 0 30px;
+        }
+        
+        .movie-poster {
+            width: 180px;
+            flex-shrink: 0;
+            height: 270px;
+            box-shadow: var(--box-shadow);
+            border-radius: 8px;
+            overflow: hidden;
+            transform: translateY(0);
+            transition: transform 0.5s ease;
+        }
+        
+        .movie-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .movie-details {
+            padding: 20px 0 0 30px;
+        }
+        
+        .movie-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+        
+        .movie-meta {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            color: var(--text-secondary);
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .meta-item strong {
+            color: var(--text-primary);
+        }
+        
+        .movie-description {
+            line-height: 1.8;
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+        }
+        
+        .content-section {
+            background: var(--secondary-bg);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin: 40px 0;
+            box-shadow: var(--box-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .content-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--accent-gradient);
+            border-radius: 3px;
+        }
+        
+        .content-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 24px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .content-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--accent-gradient);
+            border-radius: 3px;
+        }
+        
+        .reviews-list {
+            list-style: none;
+        }
+        
+        .review {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            margin-bottom: 16px;
+            transform: translateY(20px);
+            opacity: 0;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .review-rating {
+            margin-bottom: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .star {
+            color: #ffd700;
+            font-size: 1.2rem;
+        }
+        
+        .review-comment {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border-radius: var(--border-radius);
+            padding: 12px 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .star-rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        
+        .star-rating input {
+            display: none;
+        }
+        
+        .star-rating label {
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            background: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            color: #aaa;
+            font-size: 1.2rem;
+            transition: all 0.2s ease;
+        }
+        
+        .star-rating label:hover,
+        .star-rating label:hover ~ label,
+        .star-rating input:checked ~ label {
+            color: #ffd700;
+            transform: scale(1.1);
+        }
+        
+        .submit-btn {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 25px rgba(99, 102, 241, 0.5);
+        }
+        
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+        
+        .message {
+            background: rgba(99, 102, 241, 0.1);
+            color: #8b5cf6;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            border-left: 4px solid #6366f1;
+            font-weight: 500;
+        }
+        
+        /* Loading animation */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--primary-bg);
+            z-index: 9999;
+        }
+        
+        .loader-content {
+            position: relative;
+        }
+        
+        .loader-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: #6366f1;
+            border-bottom-color: #d946ef;
+            animation: spin 1.5s linear infinite;
+        }
+        
+        .loader-circle:before {
+            content: "";
+            position: absolute;
+            top: 7px;
+            left: 7px;
+            right: 7px;
+            bottom: 7px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: #8b5cf6;
+            animation: spin 2s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .movie-info {
+                flex-direction: column;
+                align-items: center;
+                margin-top: -80px;
+                padding: 0 20px;
+            }
+            
+            .movie-poster {
+                margin-bottom: 20px;
+            }
+            
+            .movie-details {
+                padding: 0;
+                text-align: center;
+            }
+            
+            .movie-title {
+                font-size: 2rem;
+            }
+            
+            .movie-meta {
+                justify-content: center;
+            }
+            
+            .content-section {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading screen -->
+    <div class="loader">
+        <div class="loader-content">
+            <div class="loader-circle"></div>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- Glow effects -->
+        <div class="glow-effect"></div>
+        <div class="glow-effect-2"></div>
+
+        <!-- Movie Detail Section -->
+        <div class="movie-detail-container">
+            <div class="movie-hero">
+                <div class="movie-backdrop">
+                    <img src="{{ movie.image_url }}" alt="{{ movie.title }} backdrop">
+                </div>
+                <div class="movie-info">
+                    <div class="movie-poster">
+                        <img src="{{ movie.image_url }}" alt="{{ movie.title }} poster">
+                    </div>
+                    <div class="movie-details">
+                        <h1 class="movie-title">{{ movie.title }}</h1>
+                        <div class="movie-meta">
+                            <div class="meta-item">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                <span><strong>Release Date:</strong> {{ movie.release_date }}</span>
+                            </div>
+                            <div class="meta-item">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                                    <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                                </svg>
+                                <span><strong>Genre:</strong> {{ movie.genre }}</span>
+                            </div>
+                        </div>
+                        <p class="movie-description">{{ movie.description }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="content-section reviews-section">
+                <h3>Reviews</h3>
+
+                                    {% if reviews %}
+                    <ul class="reviews-list">
+                        {% for review in reviews %}
+                            <li class="review">
+                                <div class="review-rating">
+                                    {% with rating=review.rating|floatformat:"0" %}
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= rating|add:"0" %}
+                                                <span class="star">★</span>
+                                            {% else %}
+                                                <span class="star" style="color: #444;">☆</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endwith %}
+                                    <span style="margin-left: 8px; color: var(--text-secondary);">({{ review.rating|floatformat:"0" }}/5)</span>
+                                </div>
+                                <p class="review-comment">{{ review.comment }}</p>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No reviews yet. Be the first to leave a review!</p>
+                {% endif %}
+            </div>
+
+            <!-- Review Form Section -->
+            <div class="content-section review-form-section">
+                <h3>Post Your Review</h3>
+
+                {% if review_message %}
+                    <p class="message">{{ review_message }}</p>
+                {% endif %}
+
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="rating">Rating</label>
+                        <div class="star-rating">
+                            <input type="radio" id="star5" name="rating" value="5" required>
+                            <label for="star5">★</label>
+                            <input type="radio" id="star4" name="rating" value="4">
+                            <label for="star4">★</label>
+                            <input type="radio" id="star3" name="rating" value="3">
+                            <label for="star3">★</label>
+                            <input type="radio" id="star2" name="rating" value="2">
+                            <label for="star2">★</label>
+                            <input type="radio" id="star1" name="rating" value="1">
+                            <label for="star1">★</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="comment">Your Review</label>
+                        <textarea name="comment" id="comment" class="form-control" rows="4" placeholder="Share your thoughts about the movie..." required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Submit Review</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize GSAP
+        gsap.registerPlugin(ScrollTrigger);
+        
+        // Page loading sequence
+        window.addEventListener('load', () => {
+            // Hide loader with animation
+            gsap.to('.loader', {
+                opacity: 0,
+                duration: 0.8,
+                delay: 0.5,
+                onComplete: () => {
+                    document.querySelector('.loader').style.display = 'none';
+                }
+            });
+            
+            // Animate entire container
+            gsap.from('.movie-detail-container', {
+                opacity: 0,
+                y: 50,
+                duration: 1.2,
+                ease: 'power3.out',
+                delay: 0.8
+            });
+            
+            // Animate movie hero section elements
+            const heroTimeline = gsap.timeline({
+                delay: 1
+            });
+            
+            heroTimeline
+                .from('.movie-backdrop img', {
+                    scale: 1.2,
+                    duration: 1.5,
+                    ease: 'power2.out'
+                })
+                .from('.movie-poster', {
+                    y: 100,
+                    opacity: 0,
+                    duration: 0.8,
+                    ease: 'back.out(1.7)'
+                }, '-=0.8')
+                .from('.movie-title', {
+                    y: 30,
+                    opacity: 0,
+                    duration: 0.8,
+                    ease: 'power2.out'
+                }, '-=0.5')
+                .from('.movie-meta', {
+                    y: 20,
+                    opacity: 0,
+                    duration: 0.7,
+                    ease: 'power2.out'
+                }, '-=0.6')
+                .from('.movie-description', {
+                    y: 20,
+                    opacity: 0,
+                    duration: 0.7,
+                    ease: 'power2.out'
+                }, '-=0.5');
+            
+            // Scroll animations for content sections
+            gsap.from('.reviews-section', {
+                scrollTrigger: {
+                    trigger: '.reviews-section',
+                    start: 'top bottom-=100',
+                    toggleActions: 'play none none none'
+                },
+                y: 50,
+                opacity: 0,
+                duration: 0.8,
+                ease: 'power2.out'
+            });
+            
+            gsap.from('.review-form-section', {
+                scrollTrigger: {
+                    trigger: '.review-form-section',
+                    start: 'top bottom-=100',
+                    toggleActions: 'play none none none'
+                },
+                y: 50,
+                opacity: 0,
+                duration: 0.8,
+                ease: 'power2.out'
+            });
+            
+            // Animate reviews with stagger effect
+            gsap.to('.review', {
+                scrollTrigger: {
+                    trigger: '.reviews-list',
+                    start: 'top bottom-=50',
+                    toggleActions: 'play none none none'
+                },
+                opacity: 1,
+                y: 0,
+                duration: 0.6,
+                stagger: 0.2,
+                ease: 'power2.out'
+            });
+            
+            // Parallax effect for backdrop on scroll
+            gsap.to('.movie-backdrop img', {
+                scrollTrigger: {
+                    trigger: '.movie-hero',
+                    start: 'top top',
+                    end: 'bottom top',
+                    scrub: true
+                },
+                y: 100,
+                ease: 'none'
+            });
+            
+            // Animate glow effects
+            gsap.to('.glow-effect', {
+                x: -100,
+                y: 100,
+                duration: 15,
+                repeat: -1,
+                yoyo: true,
+                ease: 'sine.inOut'
+            });
+            
+            gsap.to('.glow-effect-2', {
+                x: 100,
+                y: -100,
+                duration: 12,
+                repeat: -1,
+                yoyo: true,
+                ease: 'sine.inOut',
+                delay: 1
+            });
+            
+            // Hover effects for submit button
+            const submitBtn = document.querySelector('.submit-btn');
+            submitBtn.addEventListener('mouseenter', () => {
+                gsap.to(submitBtn, {
+                    scale: 1.05,
+                    duration: 0.3,
+                    ease: 'power1.out'
+                });
+            });
+            
+            submitBtn.addEventListener('mouseleave', () => {
+                gsap.to(submitBtn, {
+                    scale: 1,
+                    duration: 0.3,
+                    ease: 'power1.out'
+                });
+            });
+            
+            // Star rating hover animations
+            const starLabels = document.querySelectorAll('.star-rating label');
+            starLabels.forEach(label => {
+                label.addEventListener('mouseenter', () => {
+                    gsap.to(label, {
+                        scale: 1.2,
+                        duration: 0.2
+                    });
+                });
+                
+                label.addEventListener('mouseleave', () => {
+                    gsap.to(label, {
+                        scale: 1,
+                        duration: 0.2
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

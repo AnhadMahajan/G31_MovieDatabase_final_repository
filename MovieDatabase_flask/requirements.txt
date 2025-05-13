@@ -1,0 +1,5 @@
+Flask
+Flask-cors
+Flask-restful
+Flask_jwt_extended
+Flask_migrate

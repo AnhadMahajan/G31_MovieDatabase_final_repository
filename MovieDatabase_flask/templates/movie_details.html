@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ movie.title }} - Movie Detail</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+        :root {
+            --primary-bg: #121212;
+            --secondary-bg: #1e1e1e;
+            --card-bg: #252525;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --accent-color: #ff5e62;
+            --accent-gradient: linear-gradient(to right, #ff5e62, #ff9966);
+            --border-radius: 12px;
+            --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .movie-detail-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .movie-hero {
+            position: relative;
+            height: 500px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 40px;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .movie-backdrop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("{{ movie.image_url }}");
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.5);
+        }
+        
+        .movie-info-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 40px;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+        }
+        
+        .movie-title {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+        
+        .movie-meta {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .movie-meta p {
+            color: var(--text-secondary);
+        }
+        
+        .movie-meta strong {
+            color: var(--text-primary);
+        }
+        
+        .movie-description {
+            background: var(--secondary-bg);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            margin-bottom: 40px;
+            box-shadow: var(--box-shadow);
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--accent-gradient);
+            border-radius: 3px;
+        }
+        
+        .reviews-container {
+            background: var(--secondary-bg);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            margin-bottom: 40px;
+            box-shadow: var(--box-shadow);
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        
+        .reviews-list {
+            list-style: none;
+        }
+        
+        .review {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        
+        .review:hover {
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .review p {
+            margin-bottom: 10px;
+        }
+        
+        .rating-stars {
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .review-form-container {
+            background: var(--secondary-bg);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--card-bg);
+            border: 1px solid #333;
+            border-radius: var(--border-radius);
+            color: var(--text-primary);
+            transition: var(--transition);
+            resize: none;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(255, 94, 98, 0.2);
+        }
+        
+        .rating-selector {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
+        
+        .rating-selector input {
+            display: none;
+        }
+        
+        .rating-selector label {
+            cursor: pointer;
+            font-size: 30px;
+            color: #444;
+            transition: var(--transition);
+            margin: 0 5px;
+        }
+        
+        .rating-selector label:hover,
+        .rating-selector label:hover ~ label,
+        .rating-selector input:checked ~ label {
+            color: var(--accent-color);
+        }
+        
+        .submit-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(255, 94, 98, 0.4);
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(255, 94, 98, 0.6);
+        }
+        
+        .error-message {
+            background: rgba(255, 94, 98, 0.1);
+            color: var(--accent-color);
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 94, 98, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(255, 94, 98, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 94, 98, 0);
+            }
+        }
+        
+        /* Animations for loader */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .loader-circle {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--secondary-bg);
+            border-top-color: var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .movie-hero {
+                height: 350px;
+            }
+            
+            .movie-title {
+                font-size: 2rem;
+            }
+            
+            .movie-meta {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loader -->
+    <div class="loader">
+        <div class="loader-circle"></div>
+    </div>
+
+    <!-- Movie Detail Section -->
+    <div class="movie-detail-container">
+        <div class="movie-hero">
+            <div class="movie-backdrop"></div>
+            <div class="movie-info-overlay">
+                <h1 class="movie-title">{{ movie.title }}</h1>
+                <div class="movie-meta">
+                    <p><strong>Release Date:</strong> {{ movie.release_date }}</p>
+                    <p><strong>Genre:</strong> {{ movie.genre }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="movie-description">
+            <h2 class="section-title">Overview</h2>
+            <p>{{ movie.description }}</p>
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="reviews-container">
+            <h2 class="section-title">Reviews</h2>
+
+            {% if reviews %}
+                <ul class="reviews-list">
+                    {% for review in reviews %}
+                        <li class="review">
+                            <div class="rating-stars">
+    {% for i in range(review.rating|int) %}
+        ★
+    {% endfor %}
+    {% for i in range(5 - review.rating|int) %}
+        ☆
+    {% endfor %}
+</div>
+
+                            <p><strong>Rating:</strong> {{ review.rating }} / 5</p>
+                            <p><strong>Comment:</strong> {{ review.comment }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No reviews yet. Be the first to leave a review!</p>
+            {% endif %}
+        </div>
+
+        <!-- Review Form Section -->
+        <div class="review-form-container">
+            <h2 class="section-title">Post Your Review</h2>
+
+            <!-- Error message for missing comment or rating -->
+            {% if error %}
+                <p class="error-message">{{ error }}</p>
+            {% endif %}
+
+            <form action="{{ url_for('add_review', movie_id=movie.id) }}" method="POST">
+                <div class="form-group">
+                    <label for="rating">Rating</label>
+                    <div class="rating-selector">
+                        <input type="radio" id="star5" name="rating" value="5" required>
+                        <label for="star5">★</label>
+                        <input type="radio" id="star4" name="rating" value="4">
+                        <label for="star4">★</label>
+                        <input type="radio" id="star3" name="rating" value="3">
+                        <label for="star3">★</label>
+                        <input type="radio" id="star2" name="rating" value="2">
+                        <label for="star2">★</label>
+                        <input type="radio" id="star1" name="rating" value="1">
+                        <label for="star1">★</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="comment">Your Review</label>
+                    <textarea name="comment" id="comment" rows="4" placeholder="Share your thoughts about the movie..." required></textarea>
+                </div>
+                <button type="submit" class="submit-btn pulse">Submit Review</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Wait for page to load
+        window.addEventListener('load', () => {
+            // Initialize GSAP
+            gsap.registerPlugin(ScrollTrigger);
+            
+            // Hide loader
+            setTimeout(() => {
+                gsap.to('.loader', {
+                    duration: 0.8,
+                    opacity: 0,
+                    ease: "power2.inOut",
+                    onComplete: () => {
+                        document.querySelector('.loader').style.display = 'none';
+                    }
+                });
+                
+                // Animate main container
+                gsap.to('.movie-detail-container', {
+                    duration: 1,
+                    opacity: 1,
+                    y: 0,
+                    ease: "power3.out",
+                    delay: 0.2
+                });
+                
+                // Animate sections with scroll
+                gsap.to('.movie-description', {
+                    scrollTrigger: {
+                        trigger: '.movie-description',
+                        start: "top bottom-=100",
+                        toggleActions: "play none none none"
+                    },
+                    duration: 0.8,
+                    opacity: 1,
+                    y: 0,
+                    ease: "power2.out"
+                });
+                
+                gsap.to('.reviews-container', {
+                    scrollTrigger: {
+                        trigger: '.reviews-container',
+                        start: "top bottom-=100",
+                        toggleActions: "play none none none"
+                    },
+                    duration: 0.8,
+                    opacity: 1,
+                    y: 0,
+                    ease: "power2.out"
+                });
+                
+                gsap.to('.review-form-container', {
+                    scrollTrigger: {
+                        trigger: '.review-form-container',
+                        start: "top bottom-=100",
+                        toggleActions: "play none none none"
+                    },
+                    duration: 0.8,
+                    opacity: 1,
+                    y: 0,
+                    ease: "power2.out"
+                });
+                
+                // Animate reviews with stagger
+                gsap.to('.review', {
+                    scrollTrigger: {
+                        trigger: '.reviews-list',
+                        start: "top bottom-=50",
+                        toggleActions: "play none none none"
+                    },
+                    duration: 0.6,
+                    opacity: 1,
+                    scale: 1,
+                    stagger: 0.15,
+                    ease: "back.out(1.5)"
+                });
+            }, 800);
+            
+            // Parallax effect for movie backdrop
+            gsap.to('.movie-backdrop', {
+                scrollTrigger: {
+                    trigger: '.movie-hero',
+                    start: "top top",
+                    end: "bottom top",
+                    scrub: true
+                },
+                y: 100,
+                ease: "none"
+            });
+            
+            // Subtle hover effects for interactive elements
+            const buttons = document.querySelectorAll('.submit-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    gsap.to(btn, {
+                        duration: 0.3,
+                        scale: 1.05,
+                        ease: "power1.out"
+                    });
+                });
+                
+                btn.addEventListener('mouseleave', () => {
+                    gsap.to(btn, {
+                        duration: 0.3,
+                        scale: 1,
+                        ease: "power1.out"
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
